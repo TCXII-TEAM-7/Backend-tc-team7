@@ -40,7 +40,7 @@ def get_password_hash(password: str) -> str:
     return password
 
 
-# ---------- JWT ----------
+# ---------- JWT ---------
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
