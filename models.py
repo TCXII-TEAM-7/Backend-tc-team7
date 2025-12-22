@@ -65,4 +65,5 @@ class kbase_entry(Base):
     id = Column(Integer, primary_key=True, index=True)
     question = Column(Text, nullable=False)
     answer = Column(Text, nullable=False)    
+    category = Column(String, nullable=True) 
 
