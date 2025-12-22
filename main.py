@@ -1,10 +1,10 @@
 # main.py
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from database import engine, SessionLocal
+from db.database import engine, SessionLocal
 from api.router import api_router
-import models
-from security import verify_token
+import db.models as models
+from auth.security import verify_token
 import logging
 from sqlalchemy import text
 
@@ -15,19 +15,7 @@ logger = logging.getLogger("doxa")
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-###
-# @app.on_event("startup")
-# def ensure_kbase_category_column():
-#     """Ensure the `category` column exists in the `kbase_entries` table.
-#     This runs a Postgres-safe `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` on startup.
-#     """
-#     try:
-#         with engine.begin() as conn:
-#             conn.execute(text("ALTER TABLE kbase_entries ADD COLUMN IF NOT EXISTS category TEXT"))
-#         logger.info("Ensured kbase_entries.category column exists")
-#     except Exception as e:
-#         logger.exception(f"Failed to ensure category column exists: {e}")
-####
+
 @app.middleware("http")
 async def jwt_auth_middleware(request: Request, call_next):
     path = request.url.path

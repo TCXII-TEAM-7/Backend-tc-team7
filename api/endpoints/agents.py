@@ -4,9 +4,9 @@ from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from sqlalchemy.orm import Session
 
-from database import get_db
-import models
-from security import get_password_hash, get_current_admin
+from db.database import get_db
+import db.models as models
+from auth.security import get_password_hash, get_current_admin
 
 
 router = APIRouter(prefix="/agents", tags=["agents"])

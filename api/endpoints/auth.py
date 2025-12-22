@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from database import get_db
-import models
-from security import (
+from db.database import get_db
+import db.models as models
+from auth.security import (
     verify_password, 
     create_access_token,
     token_blacklist  # ✅ Import the blacklist

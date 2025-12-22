@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from database import get_db
-import models
+from db.database import get_db
+import  db.models   as models
 
 SECRET_KEY = "change_me_en_valeur_secrete_longue"
 ALGORITHM = "HS256"

@@ -4,9 +4,9 @@ from pydantic import BaseModel
 from typing import Optional
 from sqlalchemy.orm import Session
 from fastapi import Depends
-from database import get_db
-import models
-from security import get_current_agent
+from db.database import get_db
+import db.models as models
+from auth.security import get_current_agent
 
 # Require a valid JWT for every /kb route; handlers can accept
 # `current_agent: models.Agent = Depends(get_current_agent)` to access it.

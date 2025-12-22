@@ -4,10 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from database import get_db
-import models
-from models import ClientType, FinalStatus
-from security import get_current_agent, get_current_admin
+from db.database import get_db
+import   db.models as  models
+from db.models import ClientType, FinalStatus
+from auth.security import get_current_agent, get_current_admin
 
 router = APIRouter(prefix="/call-sessions", tags=["call_sessions"])
 
