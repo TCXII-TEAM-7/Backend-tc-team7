@@ -8,6 +8,7 @@ from auth.security import verify_token
 import logging
 from sqlalchemy import text
 
+#test
 # Logging setup — uvicorn will capture these logs too
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("doxa")
