@@ -5,8 +5,12 @@ from sqlalchemy.orm import Session
 from fastapi import Depends
 from database import get_db
 import models
+from security import get_current_agent
 
-router = APIRouter(prefix="/kb", tags=["kb"])
+# Require a valid JWT for every /kb route; handlers can accept
+# `current_agent: models.Agent = Depends(get_current_agent)` to access it.
+router = APIRouter(prefix="/kb", tags=["kb"], dependencies=[Depends(get_current_agent)])
+
 
 class kbentry_payload(BaseModel):
     question: str
@@ -17,6 +21,7 @@ class kbentry_payload(BaseModel):
 def create_kb_entry(
     payload: kbentry_payload,
     db: Session = Depends(get_db),
+    current_agent: models.Agent = Depends(get_current_agent),
 ):
     kb_entry = models.kbase_entry(
         question=payload.question,
@@ -28,7 +33,7 @@ def create_kb_entry(
     return {"id": kb_entry.id, "question": kb_entry.question, "answer": kb_entry.answer , "message": "Knowledge base entry created successfully."}
     
 @router.get("/", status_code=200)
-def list_kb(db: Session = Depends(get_db)): 
+def list_kb(db: Session = Depends(get_db), current_agent: models.Agent = Depends(get_current_agent)): 
     kb_entries = db.query(models.kbase_entry).all()
     return kb_entries    
 
