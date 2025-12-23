@@ -136,7 +136,8 @@ def get_current_admin(
     current_agent: models.Agent = Depends(get_current_agent),
 ) -> models.Agent:
     """Vérifie que l'agent actuel est un admin"""
-    if current_agent.role != models.Role.ADMIN:
+    # `role` is stored as a string in the DB; compare to Role enum value
+    if current_agent.role != models.Role.ADMIN.value:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Accès réservé aux administrateurs",

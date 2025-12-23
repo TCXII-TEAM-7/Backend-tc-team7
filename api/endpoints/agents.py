@@ -17,6 +17,7 @@ router = APIRouter(prefix="/agents", tags=["agents"])
 class AgentBase(BaseModel):
     number: str
     email: EmailStr
+    role: str  # "agent" ou "admin"
 
 
 class AgentCreate(AgentBase):
@@ -27,10 +28,12 @@ class AgentUpdate(BaseModel):
     number: Optional[str] = None
     email: Optional[EmailStr] = None
     password: Optional[str] = None
+    role: Optional[str] = None  # "agent" ou "admin"
 
 
 class AgentRead(AgentBase):
     id: int
+    role: str
 
     class Config:
         from_attributes = True   # ou orm_mode = True si Pydantic v1
@@ -40,6 +43,7 @@ class AdminCreate(BaseModel):
     number: str
     email: EmailStr
     password: str
+    role: str  # "agent" ou "admin"
 
 
 # --------- ROUTES ---------
@@ -75,6 +79,7 @@ def create_agent(agent_in: AgentCreate, db: Session = Depends(get_db)):
         number=agent_in.number,
         email=agent_in.email,
         password=agent_in.password,  #hashed_password
+        role=agent_in.role
     )
 
     db.add(agent)
@@ -92,7 +97,7 @@ def list_agents(db: Session = Depends(get_db)):
 
 
 # GET by id
-@router.get("/agent/{agent_id}", response_model=AgentRead)
+@router.get("/agent/id/{agent_id}", response_model=AgentRead)
 def get_agent(agent_id: int, db: Session = Depends(get_db)):
     agent = db.query(models.Agent).filter(models.Agent.id == agent_id).first()
     if not agent:
@@ -102,6 +107,15 @@ def get_agent(agent_id: int, db: Session = Depends(get_db)):
         )
     return agent
 
+@router.get("/agent/role/{agent_role}", response_model=AgentRead)
+def get_agent_by_role(agent_role: str, db: Session = Depends(get_db)):
+    agent = db.query(models.Agent).filter(models.Agent.role == agent_role).first()
+    if not agent:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Agent non trouvé",
+        )
+    return agent
 
 # UPDATE (PUT partiel)
 @router.put("/modify/{agent_id}", response_model=AgentRead)
@@ -140,6 +154,8 @@ def update_agent(
         agent.email = agent_in.email
     if agent_in.password is not None:
         agent.password = get_password_hash(agent_in.password)
+    if agent_in.role is not None:
+        agent.role = agent_in.role    
 
     db.commit()
     db.refresh(agent)

@@ -14,6 +14,11 @@ class FinalStatus(str, PyEnum):
     NOT_SATISFIED = "not_satisfied"
 
 
+class Role(str, PyEnum):
+    AGENT = "agent"
+    ADMIN = "admin"
+
+
 
 
 class Agent(Base):
@@ -23,7 +28,7 @@ class Agent(Base):
     number = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, nullable=False)
-
+    role = Column(String, nullable=False, default="agent")  # "agent" ou "admin"
     call_sessions = relationship("CallSession", back_populates="agent")
 
 

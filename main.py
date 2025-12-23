@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from db.database import engine, SessionLocal
 from api.router import api_router
 import db.models as models
-from auth.security import verify_token
+from auth.security import verify_token, get_current_admin
 import logging
 from sqlalchemy import text
 
@@ -17,6 +17,34 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+
+# roles
+@app.middleware("http")
+async def role_middleware(request: Request, call_next):
+    path = request.url.path
+    logger.info(f"[JWT-MW] {request.method} {path} - checking role")
+    print(f"[JWT-MW] {request.method} {path} - checking role")
+
+    # Allow unauthenticated paths: only the login endpoint and docs/openapi
+    if (
+        path.startswith("/agents/modify/")
+        or path.startswith("/agents/add")
+        or path.startswith("/agents/delete")
+    ):
+        try:
+            get_current_admin(current_agent=request.state.current_agent)  # will raise if not admin
+        except Exception as e:
+            logger.warning(f"[JWT-MW] {request.method} {path} - role verification failed: {e}")
+            print(f"[JWT-MW] {request.method} {path} - role verification failed: {e}")
+            return JSONResponse(status_code=403, content={"detail": "Admin required"})
+    else:
+        logger.info(f"[JWT-MW] {request.method} {path} - skipped (public)")
+        print(f"[JWT-MW] {request.method} {path} - skipped (public)")
+    return await call_next(request)
+
+
+
+# auth
 @app.middleware("http")
 async def jwt_auth_middleware(request: Request, call_next):
     path = request.url.path
@@ -85,6 +113,7 @@ async def jwt_auth_middleware(request: Request, call_next):
         print(f"[JWT-MW] {request.method} {path} - completed {status} - failure - agent_id={agent_id}")
 
     return response
+
 
 app.include_router(api_router)
 
